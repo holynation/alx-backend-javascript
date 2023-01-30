@@ -1,29 +1,30 @@
+/* eslint-disable no-underscore-dangle */
 import Currency from './3-currency';
 
 class Pricing {
-  constructor(amount, currency) {
+  constructor(amount = 0, currency = Currency) {
     this._amount = amount;
     this._currency = currency;
+  }
+
+  set amount(amount = 0) {
+    this._amount = amount;
   }
 
   get amount() {
     return this._amount;
   }
 
-  set amount(value) {
-    this._amount = value;
+  set currency(currency = '') {
+    this._currency = currency;
   }
 
   get currency() {
     return this._currency;
   }
 
-  set currency(value) {
-    this._currency = value;
-  }
-
   displayFullPrice() {
-    return `${this._amount} ${this._currency.name} (${this._currency.code})`;
+    return `${this._amount} ${this.currency.displayFullCurrency()}`;
   }
 
   static convertPrice(amount, conversionRate) {
