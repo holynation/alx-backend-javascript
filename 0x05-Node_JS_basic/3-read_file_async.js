@@ -1,40 +1,42 @@
 const fs = require('fs');
 
-function customRead(data) {
-  const content = data.trim();
-  const contentLines = content.split('\n');
-  contentLines.splice(0, 1);
-  const fieldMap = {};
-  for (const item of contentLines) {
-    if (item) {
-      const splittedItem = item.split(',');
-      const field = splittedItem[3];
-      const fn = splittedItem[0];
-      if (fieldMap[field]) {
-        fieldMap[field].push(fn);
-      } else {
-        fieldMap[field] = [];
-        fieldMap[field].push(fn);
-      }
-    }
-  }
-  console.log(`Number of students: ${contentLines.length}`);
-  for (const key in fieldMap) {
-    if (key) {
-      const ar = fieldMap[key];
-      console.log(`Number of students in ${key}: ${ar.length}. List: ${ar.join(', ')}`);
-    }
-  }
-}
+const countStudents = (path) => {
+  const promise = (res, rej) => {
+    fs.readFile(path, 'utf8', (err, resData) => {
+      if (!err) {
+        const printOut = [];
+        let printItem; // item to printed
+        const data = resData.toString().split('\n');
+        let students = data.filter((item) => item);
+        students = students.map((item) => item.split(','));
+        printItem = `Number of students: ${students.length - 1}`;
+        console.log(printItem);
+        printOut.push(printItem);
 
-function countStudents(fileName) {
-  return new Promise((resolve) => fs.readFile(fileName, 'utf-8', (err, data) => {
-    if (err) {
-      throw Error('Cannot load the database');
-    }
-    customRead(data);
-    resolve(true);
-  }));
-}
+        const fields = {};
+        for (const student in students) {
+          if (student !== 0) {
+            if (!fields[students[student][3]]) {
+              fields[students[student][3]] = [];
+            }
+            fields[students[student][3]].push(students[student][0]);
+          }
+        }
+        delete fields.field;
+        for (const key of Object.keys(fields)) {
+          printItem = `Number of students in ${key}: ${
+            fields[key].length}. List: ${fields[key].join(', ')}`;
+          console.log(printItem);
+          printOut.push(printItem);
+        }
+        res(printOut);
+      } else {
+        rej(new Error('Cannot load the database'));
+      }
+    });
+  };
+
+  return new Promise(promise);
+};
 
 module.exports = countStudents;
